@@ -4,8 +4,6 @@ const Alexa = require('alexa-sdk')
 const request = require('request')
 const util = require('util')
 
-const url = 'https://maps.googleapis.com/maps/api/directions/json?origin=Westbahnhof&destination=Sch%C3%B6nbrunn&key=AIzaSyA8VbmLikVyaANslb4CkhZppAl8WlZQtxI&mode=transit&transit_mode=subway'
-
 const isSubwayStep = step => {
   if (step['transit_details'] && step['transit_details']['line']) {
     return step['transit_details']['line']['vehicle']['type'] === 'SUBWAY'
@@ -24,19 +22,17 @@ const buildAnswer = step => {
 
 const handlers = {
   'AMAZON.HelpIntent': function () {
-    const speechOutput = ''
-    const reprompt = ''
-    this.emit(':ask', speechOutput, reprompt)
+    this.emit(':ask', '', '')
   },
   'AMAZON.CancelIntent': function () {
-    const speechOutput = ''
-    this.emit(':tell', speechOutput)
+    this.emit(':tell', '')
   },
   'AMAZON.StopIntent': function () {
-    const speechOutput = ''
-    this.emit(':tell', speechOutput)
+    this.emit(':tell', '')
   },
   'DestinationIntent': function () {
+    const destination = this.event.request.intent.slots.destination.value
+    const url = util.format('https://maps.googleapis.com/maps/api/directions/json?origin=Westbahnhof&destination=%s&key=AIzaSyA8VbmLikVyaANslb4CkhZppAl8WlZQtxI&mode=transit&transit_mode=subway', destination)
     const that = this
 
     request(url, (error, response, body) => {
@@ -48,7 +44,7 @@ const handlers = {
     })
   },
   'Unhandled': function () {
-    const speechOutput = "The skill didn't quite understand what you wanted.  Do you want to try something else?"
+    const speechOutput = "The skill didn't quite understand what you wanted. Do you want to try something else?"
     this.emit(':ask', speechOutput, speechOutput)
   }
 }
