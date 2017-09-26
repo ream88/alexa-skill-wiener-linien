@@ -4,9 +4,12 @@
   "description": "Alexa Workshop Wiener Linien Demo",
   "main": "handler.js",
   "dependencies": {
+    "request": "^2.82.0",
     "serverless": "^1.23.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "serverless-offline": "^3.16.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
