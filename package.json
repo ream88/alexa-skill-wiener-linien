@@ -4,6 +4,7 @@
   "description": "Alexa Workshop Wiener Linien Demo",
   "main": "handler.js",
   "dependencies": {
+    "alexa-sdk": "^1.0.14",
     "request": "^2.82.0",
     "serverless": "^1.23.0"
   },

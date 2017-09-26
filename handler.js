@@ -1,5 +1,6 @@
 'use strict'
 
+const Alexa = require('alexa-sdk')
 const request = require('request')
 const util = require('util')
 
@@ -21,19 +22,43 @@ const buildAnswer = step => {
   return util.format('You have to leave at %s to catch %s to %s', departureTime, shortName, headsign)
 }
 
-module.exports.lookup = (event, context, callback) => {
-  request(url, (error, response, body) => {
-    body = JSON.parse(body)
-    body = body['routes'][0]['legs'][0]['steps']
-      .find(isSubwayStep)
-    body = buildAnswer(body)
+const handlers = {
+  'AMAZON.HelpIntent': function () {
+    const speechOutput = ''
+    const reprompt = ''
+    this.emit(':ask', speechOutput, reprompt)
+  },
+  'AMAZON.CancelIntent': function () {
+    const speechOutput = ''
+    this.emit(':tell', speechOutput)
+  },
+  'AMAZON.StopIntent': function () {
+    const speechOutput = ''
+    this.emit(':tell', speechOutput)
+  },
+  'DestinationIntent': function () {
+    const that = this
 
-    callback(null, {
-      statusCode: 200,
-      body: JSON.stringify(body)
+    request(url, (error, response, body) => {
+      body = JSON.parse(body)
+      body = body['routes'][0]['legs'][0]['steps']
+      body = body.find(isSubwayStep)
+
+      that.emit(':tell', buildAnswer(body))
     })
-  })
+  },
+  'Unhandled': function () {
+    const speechOutput = "The skill didn't quite understand what you wanted.  Do you want to try something else?"
+    this.emit(':ask', speechOutput, speechOutput)
+  }
+}
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+module.exports.lookup = (event, context) => {
+  const alexa = Alexa.handler(event, context)
+
+  // alexa.appId = 'amzn1.echo-sdk-ams.app.1234';
+  // alexa.dynamoDBTableName = 'YourTableName'; // creates new table for session.attributes
+  // alexa.resources = languageStrings
+  alexa.registerHandlers(handlers)
+  alexa.execute()
 }
